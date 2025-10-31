@@ -67,16 +67,21 @@ function startExperience() {
 }
 
 function handleYesClick() {
-    if (!play) return;
+    console.log("✅ Yes button clicked!");
     
-    // Record response
-    const response = {
-        name: userName,
-        answer: "Yes",
-        noClicks: noCount,
-        timestamp: new Date().toLocaleString(),
-        date: new Date().toISOString()
-    };
+    // Simple test - remove email functionality
+    titleElement.innerHTML = "Yayyy!! :3";
+    buttonsContainer.classList.add("hidden");
+    
+    // Just show success message
+    setTimeout(() => {
+        mainContent.classList.add("hidden");
+        successMessage.classList.remove("hidden");
+        userNameSpan.textContent = userName;
+    }, 1000);
+    
+    play = false;
+}
     
     responses.push(response);
     saveResponses();
