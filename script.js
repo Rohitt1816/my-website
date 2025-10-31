@@ -21,7 +21,7 @@ const clearResponsesBtn = document.getElementById("clearResponses");
 
 // Configuration
 const MAX_IMAGES = 5;
-const ADMIN_PASSWORD = "rohit1816";
+const ADMIN_PASSWORD = "rp1816.ADMIN";
 const EMAILJS_SERVICE_ID = "service_96yfuby";
 const EMAILJS_TEMPLATE_ID = "template_8yvwjgn";
 const EMAILJS_PUBLIC_KEY = "aqNVnHyvn2dANWZiW";
