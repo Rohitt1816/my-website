@@ -21,7 +21,7 @@ const clearResponsesBtn = document.getElementById("clearResponses");
 
 // Config
 const MAX_IMAGES = 5;
-const ADMIN_PASSWORD = "loveyou";
+const ADMIN_PASSWORD = "rp1816.ADMIN";
 const EMAILJS_SERVICE_ID = "service_96yfuby";
 const EMAILJS_TEMPLATE_ID = "template_8yvwjgn";
 const EMAILJS_PUBLIC_KEY = "aqNVnHyvn2dANWZiW";
@@ -109,7 +109,11 @@ function handleYesClick() {
   play = false;
 
   sendEmailNotification(response);
-  showSuccessMessage();
+  showResponseRecordedMessage();  // Show "Response recorded" message
+
+  setTimeout(() => {
+    showSuccessMessage();
+  }, 1500);  // Delay success message
 
   console.log("✅ Response recorded:", response);
 }
@@ -129,6 +133,21 @@ function handleNoClick() {
       console.log("❌ Maximum no clicks reached");
     }
   }
+}
+
+// Show the "Response Recorded" message
+function showResponseRecordedMessage() {
+  const responseRecordedMessage = document.createElement('div');
+  responseRecordedMessage.className = 'response-recorded-message';
+  responseRecordedMessage.innerHTML = '<p>✅ Response recorded successfully!</p>';
+  
+  // Append to the main container or wherever you want
+  mainContent.appendChild(responseRecordedMessage);
+  
+  // Optionally remove it after a few seconds (to show it for a while)
+  setTimeout(() => {
+    responseRecordedMessage.remove();
+  }, 3000); // Message will disappear after 3 seconds
 }
 
 function showSuccessMessage() {
@@ -253,52 +272,3 @@ function clearAllResponses() {
   if (confirm("Are you sure you want to clear ALL responses?")) {
     responses = [];
     saveResponses();
-    updateResponseList();
-    updateTotalResponses();
-    alert("All responses cleared!");
-  }
-}
-
-function sendEmailNotification(response) {
-  console.log("📧 Attempting to send email...");
-
-  const templateParams = {
-    from_name: response.name,
-    name: response.name,
-    answer: response.answer,
-    no_clicks: response.noClicks,
-    timestamp: response.timestamp,
-    total_responses: responses.length
-  };
-
-  if (typeof emailjs === 'undefined') {
-    console.log("❌ EmailJS not loaded");
-    return;
-  }
-
-  emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-    .then((result) => console.log('✅ Email sent!', result))
-    .catch((error) => console.log('❌ Email failed:', error));
-}
-
-function testEmailJS() {
-  console.log("🔧 Testing EmailJS configuration:");
-  console.log("Service ID:", EMAILJS_SERVICE_ID);
-  console.log("Template ID:", EMAILJS_TEMPLATE_ID);
-  console.log("Public Key:", EMAILJS_PUBLIC_KEY);
-  console.log("EmailJS loaded:", typeof emailjs !== 'undefined');
-}
-testEmailJS();
-
-function preloadImages() {
-  const images = [];
-  for (let i = 1; i <= MAX_IMAGES; i++) {
-    const img = new Image();
-    img.src = `img/cat-${i}.jpg`;
-    images.push(img);
-  }
-  const yesImg = new Image();
-  yesImg.src = 'img/cat-yes.jpg';
-  images.push(yesImg);
-}
-window.addEventListener('load', preloadImages);
