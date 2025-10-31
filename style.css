@@ -287,3 +287,11 @@ body {
     font-size: 1.4rem;
   }
 }
+
+.btn--start {
+  background-color: #f53699 !important; /* Different color for Start button */
+}
+
+.btn--start:hover {
+  background-color: #ff6b6b !important;
+}
