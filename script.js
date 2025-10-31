@@ -1,16 +1,16 @@
 "use strict";
 
-// Elements
+// Elements - Using IDs instead of classes to avoid confusion
 const titleElement = document.querySelector(".title");
 const buttonsContainer = document.querySelector(".buttons");
-const yesButton = document.querySelector(".btn--yes");
-const noButton = document.querySelector(".btn--no");
+const yesButton = document.getElementById("yesBtn"); // Changed to ID
+const noButton = document.getElementById("noBtn");   // Changed to ID
 const catImg = document.querySelector(".cat-img");
 const nameInputContainer = document.getElementById("nameInputContainer");
 const mainContent = document.getElementById("mainContent");
 const successMessage = document.getElementById("successMessage");
 const nameInput = document.getElementById("nameInput");
-const startBtn = document.getElementById("startBtn");
+const startBtn = document.getElementById("startBtn"); // This is the Start button
 const userNameSpan = document.getElementById("userName");
 const adminBtn = document.getElementById("adminBtn");
 const adminPanel = document.getElementById("adminPanel");
@@ -53,10 +53,10 @@ window.addEventListener('DOMContentLoaded', function() {
     loadResponses();
     updateTotalResponses();
     
-    // Add event listeners
-    startBtn.addEventListener("click", startExperience);
-    yesButton.addEventListener("click", handleYesClick);
-    noButton.addEventListener("click", handleNoClick);
+    // Add event listeners - VERY IMPORTANT: Different buttons!
+    startBtn.addEventListener("click", startExperience); // Start button
+    yesButton.addEventListener("click", handleYesClick); // Yes button (Valentine question)
+    noButton.addEventListener("click", handleNoClick);   // No button (Valentine question)
     adminBtn.addEventListener("click", toggleAdminPanel);
     clearResponsesBtn.addEventListener("click", clearAllResponses);
     
@@ -68,10 +68,15 @@ window.addEventListener('DOMContentLoaded', function() {
     });
     
     console.log("✅ Website initialized successfully");
+    console.log("✅ Start button:", startBtn);
+    console.log("✅ Yes button:", yesButton);
+    console.log("✅ No button:", noButton);
 });
 
-// Functions
+// Function for START button (name submission)
 function startExperience() {
+    console.log("🎯 Start button clicked!");
+    
     userName = nameInput.value.trim();
     if (!userName) {
         alert("Please enter your name!");
@@ -82,10 +87,12 @@ function startExperience() {
     nameInputContainer.classList.add("hidden");
     mainContent.classList.remove("hidden");
     console.log("✅ User started:", userName);
+    console.log("✅ Now showing Valentine question");
 }
 
+// Function for YES button (Valentine response)
 function handleYesClick() {
-    console.log("✅ Yes button clicked for user:", userName);
+    console.log("💖 Yes button clicked for user:", userName);
     
     if (!play) {
         console.log("❌ Game already ended");
@@ -111,7 +118,7 @@ function handleYesClick() {
     saveResponses();
     updateTotalResponses();
     
-    // Show success UI first
+    // Show success UI
     titleElement.innerHTML = "Yayyy!! :3";
     buttonsContainer.classList.add("hidden");
     changeImage("yes");
@@ -120,7 +127,7 @@ function handleYesClick() {
     triggerConfetti();
     showSuccessMessage();
     
-    // Send email (but don't wait for it)
+    // Send email
     sendEmailNotification(response);
     
     play = false;
@@ -200,22 +207,6 @@ function triggerConfetti() {
             colors: ['#ff6b6b', '#f53699', '#40c057', '#ffd43b']
         });
         
-        // Left side confetti
-        setTimeout(() => confetti({
-            particleCount: 100,
-            angle: 60,
-            spread: 55,
-            origin: { x: 0 }
-        }), 150);
-        
-        // Right side confetti
-        setTimeout(() => confetti({
-            particleCount: 100,
-            angle: 120,
-            spread: 55,
-            origin: { x: 1 }
-        }), 300);
-        
         console.log("✅ Confetti triggered");
     } catch (error) {
         console.log("❌ Confetti error:", error);
@@ -236,7 +227,6 @@ function createHeart() {
     heart.style.transform = `rotate(45deg) scale(${Math.random() * 0.5 + 0.5})`;
     heartsContainer.appendChild(heart);
     
-    // Remove heart after animation and create new one
     setTimeout(() => {
         heart.remove();
         createHeart();
@@ -312,7 +302,6 @@ function sendEmailNotification(response) {
         total_responses: responses.length
     };
     
-    // Check if emailjs is available
     if (typeof emailjs === 'undefined') {
         console.log("❌ EmailJS not loaded, skipping email");
         return;
@@ -323,23 +312,7 @@ function sendEmailNotification(response) {
             console.log('✅ Email sent successfully!', response.status, response.text);
         }, function(error) {
             console.log('❌ Failed to send email:', error);
-            createFallbackEmail(response);
         });
-}
-
-function createFallbackEmail(response) {
-    const subject = `💖 New Valentine Response from ${response.name}`;
-    const body = `
-Name: ${response.name}
-Answer: ${response.answer}
-No Clicks: ${response.noClicks}
-Date: ${response.timestamp}
-
-Total Responses: ${responses.length}
-    `.trim();
-    
-    const mailtoLink = `mailto:rohitpadal10@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    console.log('📧 Fallback email link:', mailtoLink);
 }
 
 // Make sure cat images exist
