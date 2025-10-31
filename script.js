@@ -94,13 +94,8 @@ function startExperience() {
 function handleYesClick() {
     console.log("💖 Yes button clicked for user:", userName);
     
-    if (!play) {
-        console.log("❌ Game already ended");
-        return;
-    }
-    
+    if (!play) return;
     if (!userName) {
-        console.log("❌ No user name found");
         alert("Please enter your name first!");
         return;
     }
@@ -125,7 +120,15 @@ function handleYesClick() {
     
     // Confetti and celebration
     triggerConfetti();
+    
+    // Remove the immediate showSuccessMessage() call
+    // Let the timeout in showSuccessMessage handle the transition
+    
+    play = false;
+    
+    // Call showSuccessMessage with delay (it already has timeout inside)
     showSuccessMessage();
+}
     
     // Send email
     sendEmailNotification(response);
@@ -295,6 +298,7 @@ function sendEmailNotification(response) {
     console.log("📧 Attempting to send email...");
     
     const templateParams = {
+        from_name: response.name,  // Changed to from_name
         name: response.name,
         answer: response.answer,
         no_clicks: response.noClicks,
@@ -303,17 +307,34 @@ function sendEmailNotification(response) {
     };
     
     if (typeof emailjs === 'undefined') {
-        console.log("❌ EmailJS not loaded, skipping email");
+        console.log("❌ EmailJS not loaded");
         return;
     }
     
+    console.log("Sending with Service:", EMAILJS_SERVICE_ID);
+    console.log("Template:", EMAILJS_TEMPLATE_ID);
+    console.log("Params:", templateParams);
+    
     emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-        .then(function(response) {
-            console.log('✅ Email sent successfully!', response.status, response.text);
+        .then(function(result) {
+            console.log('✅ Email sent successfully!', result.status, result.text);
         }, function(error) {
             console.log('❌ Failed to send email:', error);
+            console.log('Error details:', error.text || error);
         });
 }
+
+// Add this function
+function testEmailJS() {
+    console.log("🔧 Testing EmailJS configuration:");
+    console.log("Service ID:", EMAILJS_SERVICE_ID);
+    console.log("Template ID:", EMAILJS_TEMPLATE_ID);
+    console.log("Public Key:", EMAILJS_PUBLIC_KEY);
+    console.log("EmailJS loaded:", typeof emailjs !== 'undefined');
+}
+
+// Call this in your DOMContentLoaded event
+testEmailJS();
 
 // Make sure cat images exist
 function preloadImages() {
