@@ -1,8 +1,5 @@
 "use strict";
 
-// Initialize EmailJS with your Public Key
-emailjs.init("aqNVnHyvn2dANWZiW");
-
 // Elements
 const titleElement = document.querySelector(".title");
 const buttonsContainer = document.querySelector(".buttons");
@@ -24,9 +21,10 @@ const clearResponsesBtn = document.getElementById("clearResponses");
 
 // Configuration
 const MAX_IMAGES = 5;
-const ADMIN_PASSWORD = "rohit1816"; // Change this to your preferred password
+const ADMIN_PASSWORD = "rohit1816";
 const EMAILJS_SERVICE_ID = "service_96yfuby";
 const EMAILJS_TEMPLATE_ID = "template_8yvwjgn";
+const EMAILJS_PUBLIC_KEY = "aqNVnHyvn2dANWZiW";
 
 // State
 let play = true;
@@ -34,23 +32,42 @@ let noCount = 0;
 let userName = "";
 let responses = JSON.parse(localStorage.getItem('valentineResponses')) || [];
 
-// Initialize
-createHearts();
-loadResponses();
-updateTotalResponses();
-
-// Event Listeners
-startBtn.addEventListener("click", startExperience);
-yesButton.addEventListener("click", handleYesClick);
-noButton.addEventListener("click", handleNoClick);
-adminBtn.addEventListener("click", toggleAdminPanel);
-clearResponsesBtn.addEventListener("click", clearAllResponses);
-
-// Enter key support for name input
-nameInput.addEventListener("keypress", function(event) {
-    if (event.key === "Enter") {
-        startExperience();
+// Initialize EmailJS safely
+function initializeEmailJS() {
+    try {
+        if (typeof emailjs !== 'undefined') {
+            emailjs.init(EMAILJS_PUBLIC_KEY);
+            console.log("✅ EmailJS initialized successfully");
+        } else {
+            console.log("❌ EmailJS not loaded");
+        }
+    } catch (error) {
+        console.log("❌ EmailJS initialization failed:", error);
     }
+}
+
+// Initialize everything when page loads
+window.addEventListener('DOMContentLoaded', function() {
+    initializeEmailJS();
+    createHearts();
+    loadResponses();
+    updateTotalResponses();
+    
+    // Add event listeners
+    startBtn.addEventListener("click", startExperience);
+    yesButton.addEventListener("click", handleYesClick);
+    noButton.addEventListener("click", handleNoClick);
+    adminBtn.addEventListener("click", toggleAdminPanel);
+    clearResponsesBtn.addEventListener("click", clearAllResponses);
+    
+    // Enter key support for name input
+    nameInput.addEventListener("keypress", function(event) {
+        if (event.key === "Enter") {
+            startExperience();
+        }
+    });
+    
+    console.log("✅ Website initialized successfully");
 });
 
 // Functions
@@ -64,31 +81,37 @@ function startExperience() {
     
     nameInputContainer.classList.add("hidden");
     mainContent.classList.remove("hidden");
+    console.log("✅ User started:", userName);
 }
 
 function handleYesClick() {
-    console.log("✅ Yes button clicked!");
+    console.log("✅ Yes button clicked for user:", userName);
     
-    // Simple test - remove email functionality
-    titleElement.innerHTML = "Yayyy!! :3";
-    buttonsContainer.classList.add("hidden");
+    if (!play) {
+        console.log("❌ Game already ended");
+        return;
+    }
     
-    // Just show success message
-    setTimeout(() => {
-        mainContent.classList.add("hidden");
-        successMessage.classList.remove("hidden");
-        userNameSpan.textContent = userName;
-    }, 1000);
+    if (!userName) {
+        console.log("❌ No user name found");
+        alert("Please enter your name first!");
+        return;
+    }
     
-    play = false;
-}
+    // Record response
+    const response = {
+        name: userName,
+        answer: "Yes",
+        noClicks: noCount,
+        timestamp: new Date().toLocaleString(),
+        date: new Date().toISOString()
+    };
     
     responses.push(response);
     saveResponses();
     updateTotalResponses();
-    sendEmailNotification(response);
     
-    // Show success
+    // Show success UI first
     titleElement.innerHTML = "Yayyy!! :3";
     buttonsContainer.classList.add("hidden");
     changeImage("yes");
@@ -97,18 +120,28 @@ function handleYesClick() {
     triggerConfetti();
     showSuccessMessage();
     
+    // Send email (but don't wait for it)
+    sendEmailNotification(response);
+    
     play = false;
+    console.log("✅ Response recorded:", response);
 }
 
 function handleNoClick() {
+    console.log("❌ No button clicked, count:", noCount + 1);
+    
     if (play) {
         noCount++;
         const imageIndex = Math.min(noCount, MAX_IMAGES);
         changeImage(imageIndex);
         resizeYesButton();
         updateNoButtonText();
+        
+        console.log("✅ Updated no count to:", noCount);
+        
         if (noCount === MAX_IMAGES) {
             play = false;
+            console.log("❌ Maximum no clicks reached");
         }
     }
 }
@@ -122,6 +155,8 @@ function showSuccessMessage() {
         // More confetti after delay
         setTimeout(triggerConfetti, 1000);
         setTimeout(triggerConfetti, 2000);
+        
+        console.log("✅ Success message shown for:", userName);
     }, 1500);
 }
 
@@ -146,7 +181,9 @@ function generateMessage(noCount) {
 }
 
 function changeImage(image) {
-    catImg.src = `img/cat-${image}.jpg`;
+    const newSrc = `img/cat-${image}.jpg`;
+    catImg.src = newSrc;
+    console.log("✅ Image changed to:", newSrc);
 }
 
 function updateNoButtonText() {
@@ -154,38 +191,35 @@ function updateNoButtonText() {
 }
 
 function triggerConfetti() {
-    // Main confetti burst
-    confetti({
-        particleCount: 150,
-        spread: 70,
-        origin: { y: 0.6 },
-        colors: ['#ff6b6b', '#f53699', '#40c057', '#ffd43b']
-    });
-    
-    // Left side confetti
-    setTimeout(() => confetti({
-        particleCount: 100,
-        angle: 60,
-        spread: 55,
-        origin: { x: 0 }
-    }), 150);
-    
-    // Right side confetti
-    setTimeout(() => confetti({
-        particleCount: 100,
-        angle: 120,
-        spread: 55,
-        origin: { x: 1 }
-    }), 300);
-    
-    // Additional bursts
-    setTimeout(() => confetti({
-        particleCount: 50,
-        startVelocity: 30,
-        spread: 360,
-        ticks: 60,
-        origin: { x: 0.5, y: 0.5 }
-    }), 500);
+    try {
+        // Main confetti burst
+        confetti({
+            particleCount: 150,
+            spread: 70,
+            origin: { y: 0.6 },
+            colors: ['#ff6b6b', '#f53699', '#40c057', '#ffd43b']
+        });
+        
+        // Left side confetti
+        setTimeout(() => confetti({
+            particleCount: 100,
+            angle: 60,
+            spread: 55,
+            origin: { x: 0 }
+        }), 150);
+        
+        // Right side confetti
+        setTimeout(() => confetti({
+            particleCount: 100,
+            angle: 120,
+            spread: 55,
+            origin: { x: 1 }
+        }), 300);
+        
+        console.log("✅ Confetti triggered");
+    } catch (error) {
+        console.log("❌ Confetti error:", error);
+    }
 }
 
 function createHearts() {
@@ -211,11 +245,13 @@ function createHeart() {
 
 function saveResponses() {
     localStorage.setItem('valentineResponses', JSON.stringify(responses));
+    console.log("✅ Responses saved to localStorage");
 }
 
 function loadResponses() {
     responses = JSON.parse(localStorage.getItem('valentineResponses')) || [];
     updateResponseList();
+    console.log("✅ Responses loaded:", responses.length);
 }
 
 function updateResponseList() {
@@ -266,6 +302,8 @@ function clearAllResponses() {
 }
 
 function sendEmailNotification(response) {
+    console.log("📧 Attempting to send email...");
+    
     const templateParams = {
         name: response.name,
         answer: response.answer,
@@ -274,12 +312,17 @@ function sendEmailNotification(response) {
         total_responses: responses.length
     };
     
+    // Check if emailjs is available
+    if (typeof emailjs === 'undefined') {
+        console.log("❌ EmailJS not loaded, skipping email");
+        return;
+    }
+    
     emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
         .then(function(response) {
             console.log('✅ Email sent successfully!', response.status, response.text);
         }, function(error) {
             console.log('❌ Failed to send email:', error);
-            // Fallback: create mailto link
             createFallbackEmail(response);
         });
 }
@@ -296,17 +339,22 @@ Total Responses: ${responses.length}
     `.trim();
     
     const mailtoLink = `mailto:rohitpadal10@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    console.log('Fallback email link:', mailtoLink);
+    console.log('📧 Fallback email link:', mailtoLink);
 }
 
 // Make sure cat images exist
 function preloadImages() {
+    const images = [];
     for (let i = 1; i <= MAX_IMAGES; i++) {
         const img = new Image();
         img.src = `img/cat-${i}.jpg`;
+        images.push(img);
     }
     const yesImg = new Image();
     yesImg.src = 'img/cat-yes.jpg';
+    images.push(yesImg);
+    
+    console.log("✅ Images preloaded");
 }
 
 // Preload images when page loads
