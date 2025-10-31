@@ -13,18 +13,44 @@
     <title>Valentine</title>
   </head>
   <body>
+    <!-- Heart animations background -->
+    <div class="hearts-container"></div>
+    
     <main class="container">
-      <img class="cat-img" src="img/img7.jpg" alt="Picture of a cat" />
-      <p class="title">Will you be my Valentine?</p>
-      <div class="buttons">
-        <button type="button" class="btn btn--yes">Yes</button>
-        <button type="button" class="btn btn--no">No</button>
+      <div class="name-input-container" id="nameInputContainer">
+        <p class="title">What's your name?</p>
+        <input type="text" class="name-input" id="nameInput" placeholder="Enter your name" maxlength="50" />
+        <button class="btn btn--yes" id="startBtn">Start</button>
+      </div>
+
+      <div class="main-content hidden" id="mainContent">
+        <img class="cat-img" src="img/img7.jpg" alt="Picture of a cat" />
+        <p class="title">Will you be my Valentine?</p>
+        <div class="buttons">
+          <button type="button" class="btn btn--yes">Yes</button>
+          <button type="button" class="btn btn--no">No</button>
+        </div>
+      </div>
+
+      <div class="success-message hidden" id="successMessage">
+        <img class="cat-img" src="img/cat-yes.jpg" alt="Happy cat" />
+        <p class="title">Yayyy!! :3</p>
+        <p class="subtitle">Thank you <span id="userName"></span>! ❤️</p>
       </div>
     </main>
 
-    <script type="module" src="script.js"></script>
-    <script>
-  
-    </script>
+    <!-- Admin Dashboard (Hidden from normal users) -->
+    <div class="admin-corner">
+      <button class="admin-btn" id="adminBtn">👁️</button>
+      <div class="admin-panel hidden" id="adminPanel">
+        <h3>💖 Responses (Total: <span id="totalResponses">0</span>)</h3>
+        <div id="responseList"></div>
+        <button class="btn btn--yes" id="clearResponses" style="margin-top: 10px; font-size: 1.2rem;">Clear All</button>
+      </div>
+    </div>
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    <script src="script.js"></script>
   </body>
 </html>
