@@ -115,6 +115,8 @@ function handleYesClick() {
     showSuccessMessage();
   }, 1500);  // Delay success message
 
+  alert(`Your response has been recorded, ${userName}`);  // Alert message
+
   console.log("✅ Response recorded:", response);
 }
 
@@ -131,6 +133,8 @@ function handleNoClick() {
     if (noCount === MAX_IMAGES) {
       play = false;
       console.log("❌ Maximum no clicks reached");
+    } else {
+      play = true;  // Allow further clicks if the max isn't reached
     }
   }
 }
@@ -265,10 +269,3 @@ function toggleAdminPanel() {
     }
   } else if (password) {
     alert("Incorrect password!");
-  }
-}
-
-function clearAllResponses() {
-  if (confirm("Are you sure you want to clear ALL responses?")) {
-    responses = [];
-    saveResponses();
